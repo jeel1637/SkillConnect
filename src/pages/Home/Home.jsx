@@ -1,3 +1,4 @@
+import heroImage from "../../assets/images/hero-education.svg";
 function Home() {
   return (
     <section className="py-5">
@@ -29,15 +30,13 @@ function Home() {
           </div>
 
           <div className="col-lg-6 text-center mt-5 mt-lg-0">
-            <div
-              className="bg-light rounded shadow d-flex align-items-center justify-content-center"
-              style={{ height: "350px" }}
-            >
-              <h3 className="text-secondary">
-                Hero Image Coming Soon
-              </h3>
-            </div>
-          </div>
+            <img
+                src={heroImage}
+                alt="SkillConnect Hero"
+                className="img-fluid"
+                style={{ maxHeight: "450px" }}
+                />
+             </div>
 
         </div>
       </div>
