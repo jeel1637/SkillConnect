@@ -1,16 +1,10 @@
 import { Routes, Route } from "react-router-dom";
+import Home from "../pages/Home/Home";
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <h1 className="text-center mt-5">
-            Welcome to SkillConnect
-          </h1>
-        }
-      />
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 }
