@@ -1,4 +1,5 @@
 import heroImage from "../../assets/images/hero-education.svg";
+import FeaturedCourses from "../../components/home/FeaturedCourses";
 
 function Home() {
   return (
@@ -83,7 +84,7 @@ function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* Categories Section */}
 <section className="py-5">
   <div className="container">
@@ -129,6 +130,7 @@ function Home() {
 
   </div>
 </section>
+<FeaturedCourses />
     </>
   );
 }
