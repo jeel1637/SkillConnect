@@ -38,6 +38,17 @@ function Navbar() {
             </li>
 
           </ul>
+
+          <div className="d-flex ms-lg-3 mt-3 mt-lg-0 gap-2">
+            <Link to="/login" className="btn btn-outline-light">
+               Login
+            </Link>
+
+          <Link to="/register" className="btn btn-light text-primary">
+            Register
+          </Link>
+          </div>
+          
         </div>
 
       </div>
