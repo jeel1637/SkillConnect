@@ -6,6 +6,7 @@ import Home from "../pages/Home/Home";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
+import Courses from "../pages/Courses/Courses";
 
 function AppRoutes() {
   return (
@@ -14,7 +15,7 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />}  />
-     
+      <Route path="/courses" element={<Courses />} />
       <Route
         path="/student/dashboard"
         element={
