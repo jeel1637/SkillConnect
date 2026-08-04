@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -8,6 +8,7 @@ function Login() {
 });
 
 const [message, setMessage] = useState("");
+const navigate = useNavigate();
 
 const handleChange = (e) => {
   setFormData({
@@ -45,6 +46,8 @@ const handleSubmit = async (e) => {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("Login Success:", data.user);
+      navigate("/student/dashboard");
+      
     } else {
       setMessage(data.message);
     }
