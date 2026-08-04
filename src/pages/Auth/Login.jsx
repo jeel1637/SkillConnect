@@ -1,4 +1,58 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 function Login() {
+  const [formData, setFormData] = useState({
+  email: "",
+  password: "",
+});
+
+const [message, setMessage] = useState("");
+
+const handleChange = (e) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value,
+  });
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.email || !formData.password) {
+    setMessage("Please enter email and password.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://localhost/skillconnect-api/auth/login.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      setMessage(data.message);
+
+      // User data save in localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("Login Success:", data.user);
+    } else {
+      setMessage(data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    setMessage("Server connection failed.");
+  }
+};
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
@@ -10,7 +64,13 @@ function Login() {
                 Login
               </h2>
 
-              <form>
+              {message && (
+                <div className="alert alert-danger">
+                {message}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit}>
 
                 <div className="mb-3">
                   <label className="form-label">
@@ -18,8 +78,11 @@ function Login() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     className="form-control"
                     placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -29,8 +92,11 @@ function Login() {
                   </label>
                   <input
                     type="password"
+                    name="password"
                     className="form-control"
                     placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -49,9 +115,9 @@ function Login() {
                     </label>
                   </div>
 
-                  <a href="/forgot-password">
+                  <Link to="/forgot-password">
                     Forgot Password?
-                  </a>
+                  </Link>
                 </div>
 
                 <button
