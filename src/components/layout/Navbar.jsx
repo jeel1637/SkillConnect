@@ -1,6 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleLogout = () => {
+  localStorage.removeItem("user");
+  navigate("/login");
+  
+};
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
       <div className="container">
@@ -40,13 +49,41 @@ function Navbar() {
           </ul>
 
           <div className="d-flex ms-lg-3 mt-3 mt-lg-0 gap-2">
-            <Link to="/login" className="btn btn-outline-light">
-               Login
-            </Link>
 
-          <Link to="/register" className="btn btn-light text-primary">
-            Register
-          </Link>
+            {user ? (
+              <>
+                <Link
+                  className="btn btn-outline-light"
+                  to="/student/dashboard"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  className="btn btn-light text-primary"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+        ) : (
+             <>
+              <Link
+                className="btn btn-outline-light"
+                to="/login"
+              >
+                Login
+              </Link>
+
+              <Link
+                className="btn btn-light text-primary"
+                to="/register"
+              >
+                Register
+              </Link>
+            </>
+          )}
+
           </div>
           
         </div>

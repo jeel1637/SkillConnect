@@ -3,24 +3,18 @@ import { useNavigate } from "react-router-dom";
 function Dashboard() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
+
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 text-center">
 
-      <h1>Student Dashboard</h1>
+    <h1 className="fw-bold">
+        Student Dashboard
+    </h1>
 
-      <p>Welcome to SkillConnect 🎉</p>
-
-      <button
-        className="btn btn-danger mt-3"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
+    <p className="lead">
+        Welcome to SkillConnect 🎉
+    </p>
 
     </div>
   );
