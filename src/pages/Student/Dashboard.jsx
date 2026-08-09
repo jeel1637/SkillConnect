@@ -99,7 +99,7 @@ function Dashboard() {
                 <button
                   className="btn btn-primary"
                   onClick={() =>
-                    navigate(`/courses/${course.course_id}`)
+                    navigate(`/courses/${course.course_id}/learn`)
                   }
                 >
                   Continue Learning

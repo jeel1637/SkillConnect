@@ -28,6 +28,16 @@ export const getCourseById = async (id) => {
   return data;
 };
 
+export const getLessons = async (courseId) => {
+  const response = await fetch(
+    `${API_URL}/get-lessons.php?course_id=${courseId}`
+  );
+
+  const data = await response.json();
+
+  return data;
+};
+
 export const enrollCourse = async (userId, courseId) => {
   const response = await fetch(`${API_URL}/enroll.php`, {
     method: "POST",
