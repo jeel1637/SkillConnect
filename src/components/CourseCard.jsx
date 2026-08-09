@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function CourseCard({ course }) {
   return (
     <div className="card shadow-sm h-100">
@@ -19,6 +21,13 @@ function CourseCard({ course }) {
         <h6 className="text-primary">
           ₹{course.price}
         </h6>
+
+        <Link
+          to={`/courses/${course.id}`}
+          className="btn btn-primary mt-3"
+        >
+          View Details
+        </Link>
 
       </div>
 

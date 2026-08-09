@@ -7,3 +7,13 @@ export const getCourses = async () => {
 
   return data;
 };
+
+export const getCourseById = async (id) => {
+  const response = await fetch(
+    `${API_URL}/get-one.php?id=${id}`
+  );
+
+  const data = await response.json();
+
+  return data;
+};
