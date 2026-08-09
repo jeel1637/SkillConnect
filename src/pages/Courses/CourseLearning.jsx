@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getLessons } from "../../services/courseService";
+import {
+  getLessons,
+  completeLesson,
+} from "../../services/courseService";
 
 function CourseLearning() {
   const { id } = useParams();
@@ -9,6 +12,35 @@ function CourseLearning() {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [completedLessons, setCompletedLessons] = useState([]);
+
+  const handleCompleteLesson = async (lessonId) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+    navigate("/login");
+    return;
+  }
+
+  try {
+    const data = await completeLesson(user.id, lessonId);
+
+    if (data.success) {
+      setCompletedLessons((prev) => {
+        if (prev.includes(lessonId)) {
+          return prev;
+        }
+
+        return [...prev, lessonId];
+      });
+    } else {
+      alert(data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Failed to mark lesson as completed.");
+  }
+};
 
   useEffect(() => {
     const loadLessons = async () => {
@@ -93,17 +125,39 @@ function CourseLearning() {
                     {lesson.description}
                   </p>
 
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      window.open(
-                        lesson.video_url,
-                        "_blank"
-                      )
-                    }
-                  >
-                    Start Lesson
-                  </button>
+                  <div className="d-flex justify-content-center gap-2">
+
+  <button
+    className="btn btn-primary"
+    onClick={() =>
+      window.open(
+        lesson.video_url,
+        "_blank"
+      )
+    }
+  >
+    Start Lesson
+  </button>
+
+  {completedLessons.includes(Number(lesson.id)) ? (
+    <button
+      className="btn btn-success"
+      disabled
+    >
+      ✓ Completed
+    </button>
+  ) : (
+    <button
+      className="btn btn-outline-success"
+      onClick={() =>
+        handleCompleteLesson(Number(lesson.id))
+      }
+    >
+      Mark as Complete
+    </button>
+  )}
+
+</div>
 
                 </div>
               </div>

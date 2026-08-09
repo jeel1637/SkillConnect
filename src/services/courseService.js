@@ -38,6 +38,26 @@ export const getLessons = async (courseId) => {
   return data;
 };
 
+export const completeLesson = async (userId, lessonId) => {
+  const response = await fetch(
+    `${API_URL}/complete-lesson.php`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        lesson_id: lessonId,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  return data;
+};
+
 export const enrollCourse = async (userId, courseId) => {
   const response = await fetch(`${API_URL}/enroll.php`, {
     method: "POST",
