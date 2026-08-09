@@ -1,6 +1,6 @@
+import { getCourseById, enrollCourse } from "../../services/courseService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCourseById } from "../../services/courseService";
 
 function CourseDetails() {
   const { id } = useParams();
@@ -8,6 +8,31 @@ function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [enrolling, setEnrolling] = useState(false);
+
+  const handleEnroll = async () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+    alert("Please login first.");
+    return;
+  }
+
+  setEnrolling(true);
+  setMessage("");
+
+  try {
+    const data = await enrollCourse(user.id, course.id);
+
+    setMessage(data.message);
+  } catch (error) {
+    console.error(error);
+    setMessage("Enrollment failed.");
+  } finally {
+    setEnrolling(false);
+  }
+};
 
   useEffect(() => {
     const loadCourse = async () => {
@@ -67,9 +92,19 @@ function CourseDetails() {
             ₹{course.price}
           </h4>
 
-          <button className="btn btn-primary">
-            Enroll Now
-          </button>
+         <button
+           className="btn btn-primary"
+           onClick={handleEnroll}
+           disabled={enrolling}
+         >
+           {enrolling ? "Enrolling..." : "Enroll Now"}
+         </button>
+
+         {message && (
+          <p className="mt-3 text-success">
+            {message}
+          </p>
+         )}
 
         </div>
       </div>
