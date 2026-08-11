@@ -4,6 +4,7 @@ import {
   getLessons,
   completeLesson,
   getProgress,
+  getCourseProgress,
 } from "../../services/courseService";
 
 function CourseLearning() {
@@ -14,6 +15,13 @@ function CourseLearning() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [completedLessons, setCompletedLessons] = useState([]);
+
+  const [courseProgress, setCourseProgress] = useState({
+    totalLessons: 0,
+    completedLessons: 0,
+    progress: 0,
+    completed: false,
+  });
 
   // Mark lesson as complete
   const handleCompleteLesson = async (lessonId) => {
@@ -29,12 +37,27 @@ function CourseLearning() {
 
       if (data.success) {
         setCompletedLessons((prev) => {
-          if (prev.includes(lessonId)) {
+          if (prev.includes(Number(lessonId))) {
             return prev;
           }
 
-          return [...prev, lessonId];
+          return [...prev, Number(lessonId)];
         });
+
+        // Refresh course progress from database
+        const progressData = await getCourseProgress(
+          user.id,
+          id
+        );
+
+        if (progressData.success) {
+          setCourseProgress({
+            totalLessons: progressData.total_lessons,
+            completedLessons: progressData.completed_lessons,
+            progress: progressData.progress,
+            completed: progressData.completed,
+          });
+        }
       } else {
         alert(data.message);
       }
@@ -44,45 +67,71 @@ function CourseLearning() {
     }
   };
 
-  // Load lessons
+  // Load course data
   useEffect(() => {
-  const loadCourseData = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const loadCourseData = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const lessonsData = await getLessons(id);
-
-      if (!lessonsData.success) {
-        setError(lessonsData.message);
+      if (!user) {
+        navigate("/login");
         return;
       }
 
-      setLessons(lessonsData.lessons);
+      try {
+        // Get lessons
+        const lessonsData = await getLessons(id);
 
-      const progressData = await getProgress(user.id, id);
+        if (!lessonsData.success) {
+          setError(lessonsData.message);
+          return;
+        }
 
-      if (progressData.success) {
-        const completedIds = progressData.progress
-          .filter((item) => Number(item.completed) === 1)
-          .map((item) => Number(item.lesson_id));
+        setLessons(lessonsData.lessons);
 
-        setCompletedLessons(completedIds);
+        // Get completed lesson IDs
+        const progressData = await getProgress(
+          user.id,
+          id
+        );
+
+        if (progressData.success) {
+          const completedIds = progressData.progress
+            .filter(
+              (item) => Number(item.completed) === 1
+            )
+            .map((item) => Number(item.lesson_id));
+
+          setCompletedLessons(completedIds);
+        }
+
+        // Get overall course progress
+        const courseProgressData = await getCourseProgress(
+          user.id,
+          id
+        );
+
+        if (courseProgressData.success) {
+          setCourseProgress({
+            totalLessons:
+              courseProgressData.total_lessons,
+            completedLessons:
+              courseProgressData.completed_lessons,
+            progress:
+              courseProgressData.progress,
+            completed:
+              courseProgressData.completed,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        setError("Failed to load course data.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      setError("Failed to load course data.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  loadCourseData();
-}, [id, navigate]);
+    loadCourseData();
+  }, [id, navigate]);
 
   // Loading
   if (loading) {
@@ -97,21 +146,23 @@ function CourseLearning() {
   if (error) {
     return (
       <div className="container py-5">
-        <div className="alert alert-danger">
+        <div className="alert alert-danger text-center">
           {error}
+        </div>
+
+        <div className="text-center">
+          <button
+            className="btn btn-outline-primary"
+            onClick={() =>
+              navigate("/student/dashboard")
+            }
+          >
+            Back to Dashboard
+          </button>
         </div>
       </div>
     );
   }
-
-  // Progress calculation
-  const completedCount = completedLessons.length;
-  const totalLessons = lessons.length;
-
-  const progress =
-    totalLessons > 0
-      ? Math.round((completedCount / totalLessons) * 100)
-      : 0;
 
   return (
     <div className="container py-5">
@@ -124,7 +175,9 @@ function CourseLearning() {
 
         <button
           className="btn btn-outline-primary"
-          onClick={() => navigate("/student/dashboard")}
+          onClick={() =>
+            navigate("/student/dashboard")
+          }
         >
           Back to Dashboard
         </button>
@@ -144,14 +197,26 @@ function CourseLearning() {
           <div
             className="progress-bar bg-success"
             role="progressbar"
-            style={{ width: `${progress}%` }}
-            aria-valuenow={progress}
+            style={{
+              width: `${courseProgress.progress}%`,
+            }}
+            aria-valuenow={courseProgress.progress}
             aria-valuemin="0"
             aria-valuemax="100"
           >
-            {completedCount} / {totalLessons} Lessons Completed
+            {courseProgress.completedLessons} /{" "}
+            {courseProgress.totalLessons} Lessons Completed
           </div>
         </div>
+
+        {/* Course Completed Message */}
+        {courseProgress.completed && (
+          <div className="alert alert-success text-center mt-3 mb-0">
+            <strong>🎉 Course Completed!</strong>
+            <br />
+            You have successfully completed all lessons.
+          </div>
+        )}
 
       </div>
 
@@ -170,9 +235,10 @@ function CourseLearning() {
 
           {lessons.map((lesson, index) => {
 
-            const isCompleted = completedLessons.includes(
-              Number(lesson.id)
-            );
+            const isCompleted =
+              completedLessons.includes(
+                Number(lesson.id)
+              );
 
             return (
               <div
@@ -191,7 +257,7 @@ function CourseLearning() {
                       </span>
                     </div>
 
-                    {/* Title */}
+                    {/* Lesson Title */}
                     <h4 className="fw-bold mb-3">
                       {lesson.title}
                     </h4>
@@ -204,6 +270,7 @@ function CourseLearning() {
                     {/* Buttons */}
                     <div className="mt-auto d-flex justify-content-center align-items-center gap-2 flex-wrap">
 
+                      {/* Start Lesson */}
                       <button
                         className="btn btn-primary"
                         onClick={() =>
@@ -215,11 +282,14 @@ function CourseLearning() {
                         Start Lesson
                       </button>
 
+                      {/* Complete Button */}
                       {!isCompleted ? (
                         <button
                           className="btn btn-outline-success"
                           onClick={() =>
-                            handleCompleteLesson(lesson.id)
+                            handleCompleteLesson(
+                              Number(lesson.id)
+                            )
                           }
                         >
                           Mark as Complete
