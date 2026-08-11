@@ -210,6 +210,19 @@ function Dashboard() {
                         </div>
                       )}
 
+                      {isCompleted && (
+                        <button
+                          className="btn btn-outline-success w-100 mb-2"
+                          onClick={() =>
+                            navigate(
+                              `/student/certificate/${course.course_id}`
+                            )
+                      }
+                    >
+                      🏆 View Certificate
+                    </button>
+                  )}
+
                       {/* Continue / Review */}
                       <button
                         className={`btn w-100 ${
