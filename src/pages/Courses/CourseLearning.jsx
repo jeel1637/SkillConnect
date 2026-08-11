@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   getLessons,
   completeLesson,
+  getProgress,
 } from "../../services/courseService";
 
 function CourseLearning() {
@@ -45,25 +46,43 @@ function CourseLearning() {
 
   // Load lessons
   useEffect(() => {
-    const loadLessons = async () => {
-      try {
-        const data = await getLessons(id);
+  const loadCourseData = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
-        if (data.success) {
-          setLessons(data.lessons);
-        } else {
-          setError(data.message);
-        }
-      } catch (error) {
-        console.error(error);
-        setError("Failed to load lessons.");
-      } finally {
-        setLoading(false);
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const lessonsData = await getLessons(id);
+
+      if (!lessonsData.success) {
+        setError(lessonsData.message);
+        return;
       }
-    };
 
-    loadLessons();
-  }, [id]);
+      setLessons(lessonsData.lessons);
+
+      const progressData = await getProgress(user.id, id);
+
+      if (progressData.success) {
+        const completedIds = progressData.progress
+          .filter((item) => Number(item.completed) === 1)
+          .map((item) => Number(item.lesson_id));
+
+        setCompletedLessons(completedIds);
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Failed to load course data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadCourseData();
+}, [id, navigate]);
 
   // Loading
   if (loading) {
